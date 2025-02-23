@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "module": "CommonJS", 
+    "esModuleInterop": true,
+    "baseUrl": "./",
+    "paths": {
+      "@routes/*": ["routes/*"]
+    }
+  }
+}
