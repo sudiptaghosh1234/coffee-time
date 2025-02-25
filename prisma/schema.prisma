@@ -35,6 +35,7 @@ model Product {
   name String
   description String
   price Float
+  quantity Int @default(1)
   image Json
   cartItems CartItem[] @relation("ProductToCartItem")
   orderItems OrderItems[] @relation("ProductToOrderItem")
