@@ -13,9 +13,89 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model User {
   id String @id @default(uuid())
   name String
-  password String
   email String @unique
+  password String
+  role Role @default(USER)
+  cart CartItem[] @relation("CartToUser")
+  order Order[] @relation("OrderToUser")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+
+model Product {
+  id String @id @default(uuid())
+  name String
+  description String
+  price Float
+  image Json
+  cartItems CartItem[] @relation("ProductToCartItem")
+  orderItems OrderItems[] @relation("ProductToOrderItem")
+}
+
+model CartItem {
+  id String @id @default(uuid())
+  userId String 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, name: "CartToUser")
+  productId String 
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, name: "ProductToCartItem")
+  quantity Int @default(1)
+  orderStatus orderStatus @default(NO)
+  @@unique([userId, productId])
+}
+
+
+enum orderStatus{
+  YES
+  NO
+}
+
+model Order{
+  id String @id @default(uuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, name: "OrderToUser")
+  total_amount Float @default(0.0)
+  order_status Status @default(PENDING)
+  payment_status Payment_Status @default(PENDING)
+  payment_method String
+  shipping_address String
+  orders OrderItems[] @relation("OrderToOrderItems")
+  order_date DateTime @default(now())
+  updated_at DateTime @updatedAt
+  @@unique([userId])
+}
+
+enum Status {
+  PENDING
+  PROCESSING 
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum Payment_Status  {
+  PENDING
+  PAID
+  REFUNDED
+  FAILED
+}
+
+
+model OrderItems{
+  id String @id @default(uuid())
+  orderId String
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, name: "OrderToOrderItems") 
+  productId String
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, name: "ProductToOrderItem") 
+  quantity Int @default(1)
+  price Int
+  subtotal Int
+  @@unique([orderId, productId])
 }
