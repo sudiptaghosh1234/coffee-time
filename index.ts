@@ -1,6 +1,7 @@
 const express= require( 'express');
 const dotenv = require( 'dotenv');
 import UserRouter from "./routes/UserRouter.route";
+import OrderRouter from "./routes/OrderRouter.route"
 import cors from 'cors';
 
 dotenv.config();
@@ -9,6 +10,7 @@ app.use(express.json());
 app.use(cors());
 
 app.use("/api/user", UserRouter);
+app.use("/api/order", OrderRouter);
 
 const PORT=process.env.PORT || 4000;
 

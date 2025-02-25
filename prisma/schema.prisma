@@ -38,7 +38,7 @@ model Product {
   quantity Int @default(1)
   image Json
   cartItems CartItem[] @relation("ProductToCartItem")
-  orderItems OrderItems[] @relation("ProductToOrderItem")
+  orderItems Order[] @relation("ProductToOrderItem")
 }
 
 model CartItem {
@@ -67,10 +67,12 @@ model Order{
   payment_status Payment_Status @default(PENDING)
   payment_method String
   shipping_address String
-  orders OrderItems[] @relation("OrderToOrderItems")
+  productId String
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, name: "ProductToOrderItem") 
+  quantity Int @default(1)
   order_date DateTime @default(now())
   updated_at DateTime @updatedAt
-  @@unique([userId])
+  @@unique([userId, productId])
 }
 
 enum Status {
@@ -89,14 +91,3 @@ enum Payment_Status  {
 }
 
 
-model OrderItems{
-  id String @id @default(uuid())
-  orderId String
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade, name: "OrderToOrderItems") 
-  productId String
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade, name: "ProductToOrderItem") 
-  quantity Int @default(1)
-  price Int
-  subtotal Int
-  @@unique([orderId, productId])
-}
