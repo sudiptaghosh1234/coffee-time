@@ -1,7 +1,8 @@
-import { RequestHandler, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client'
 import { registerSchema } from '../schemas/registerSchema';
 import bcrypt from 'bcryptjs';
+const generateToken=require('../utils/generateToken');
 
 const prisma = new PrismaClient();
 
@@ -45,3 +46,44 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         res.status(500).json({ msg: "Internal server error" }); 
     }
 };
+
+
+
+
+
+export const login=async(req: Request, res: Response): Promise<void>=>{
+    const {email, password}=req.body;
+
+    try {
+
+        const user=await prisma.user.findUnique(
+            {
+                where: {
+                    email
+                }
+            }
+        );
+        if (!user) {
+            res.status(400).json({ msg: "User not found!" });
+            return;
+        }
+        
+        if (!await bcrypt.compare(password, user.password)) {
+            res.status(400).json({ msg: "Wrong password!" });
+            return;
+        }
+
+        res.status(200).json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            role: user.role,
+            token: generateToken(user.id, process.env.SECRET_KEY)
+        });
+        
+    } catch (error) {
+        console.log(error); 
+        res.status(500).json({ msg: "Internal server error" }); 
+    }
+}
